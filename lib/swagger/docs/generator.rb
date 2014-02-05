@@ -92,7 +92,9 @@ module Swagger
           resources = header.merge({:apis => []})
 
           paths = Rails.application.routes.routes.map{|i| "#{i.defaults[:controller]}" }
-          paths = paths.uniq.select{|i| i.start_with?(controller_base_path)}
+          paths = paths.uniq.select{|i|
+            config[:valid_controller_path] ? config[:valid_controller_path].call(i) : i.start_with?(controller_base_path)
+          }
           paths.each do |path|
             next if path.empty?
             klass = "#{path.to_s.camelize}Controller".constantize
